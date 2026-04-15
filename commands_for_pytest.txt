@@ -1,0 +1,5 @@
+python3 -m pytest -vv -> run testcases
+python3 -m pytest --fixtures -> get the fixtures 
+python3 -m pytest -m transformation -> Run markers of that i named as "transformation"
+python3 -m pytest --markers -> To see markers 
+python3 -m pytest -m "not transformation" -> Run markers of that other than "transformation"
