@@ -1,5 +1,5 @@
 from lib.DataReader import read_customers, read_orders
-from lib.DataManupulation import filter_closed_orders, count_orders_state
+from lib.DataManupulation import filter_closed_orders, count_orders_state, filter_orders_generic
 from lib.ConfigReader import get_app_conf
 import pytest
 
@@ -28,3 +28,31 @@ def test_count_orders_state(spark, expected_results):
     customers_df = read_customers(spark, "LOCAL")
     actual_results = count_orders_state(customers_df)
     assert actual_results.collect() == expected_results.collect()
+
+@pytest.mark.latest()
+def test_check_closed_count(spark):
+    orders_df = read_orders(spark, "LOCAL")
+    closed_count = filter_orders_generic(orders_df, "CLOSED").count()
+    assert closed_count == 7556
+    
+    
+@pytest.mark.latest()
+def test_check_pending_payment_count(spark):
+    orders_df = read_orders(spark, "LOCAL")
+    pending_count = filter_orders_generic(orders_df, "PENDING_PAYMENT").count()
+    assert pending_count == 15030
+    
+    
+@pytest.mark.latest()
+def test_check_complete_count(spark):
+    orders_df = read_orders(spark, "LOCAL")
+    pending_count = filter_orders_generic(orders_df, "COMPLETE").count()
+    assert pending_count == 22900
+    
+@pytest.mark.parametrize("status, count", [("CLOSED", 7556), ("PENDING_PAYMENT", 15030), ("COMPLETE", 22900)])
+def test_check_count(spark, status, count):
+    orders_df = read_orders(spark, "LOCAL")
+    filtered_count = filter_orders_generic(orders_df, status).count()
+    assert filtered_count == count
+    
+    
